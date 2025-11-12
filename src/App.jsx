@@ -15,10 +15,8 @@ const PhotographerPortfolio = () => {
   const constraintsRef = useRef(null);
 
   // derive categories from images
-  const categories = useMemo(() => {
-    const set = Array.from(new Set(baseImages.map(i => i.category)));
-    return ['ALL', ...set];
-  }, [baseImages]);
+  // only real categories — "VIEW ALL" stays as its own card
+  const categories = useMemo(() => Array.from(new Set(baseImages.map(i => i.category))), [baseImages]);
 
   // filtered arrays removed — CategoryViewer receives images on open
 

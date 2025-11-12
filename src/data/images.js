@@ -9,14 +9,14 @@ export const baseImages = [
   {
     id: 2,
     src: "https://ik.imagekit.io/papi/23.jpg?updatedAt=1757931247474",
-    category: "FAMILY",
+    category: "OUTDOOR",
     title: "Fun",
     description: "A moment of pure joy and love"
   },
   {
     id: 3,
     src: "https://ik.imagekit.io/papi/20.jpg?updatedAt=1757931234913",
-    category: "CANDID",
+    category: "CORPORATE",
     title: "Meeting",
     description: "Innovation meeting at Zetech university"
   },
@@ -45,21 +45,94 @@ export const baseImages = [
     id: 7,
     src: "https://ik.imagekit.io/papi/25.jpg?updatedAt=1757931219396",
     category: "FAMILY",
-    title: "Family ",
-    description: "Mother and son bonding"
   },
+
   {
     id: 8,
     src: "https://ik.imagekit.io/papi/2.jpg?updatedAt=1757931209915",
-    category: "BRANDING",
-    title: "Self branding",
-    description: "Showcasing potrait business"
+    category: "PORTRAITS",
   },
+
   {
     id: 9,
     src: "https://ik.imagekit.io/papi/4.jpg?updatedAt=1757931205532",
     category: "BEAUTY",
-    title: "Natural Beauty",
-    description: "Beauty in black melanin"
+  },
+
+  {
+    id : 10,
+    src: "https://ik.imagekit.io/papi/papi/IMG_5316.JPG?updatedAt=1762955959431",
+    category: "CORPORATE",
+  },
+
+  {
+    id : 11,
+    src: "https://ik.imagekit.io/papi/papi/IMG_6297.JPG?updatedAt=1762955960792",
+    category: "Graduation",
+  },
+
+  {
+    id : 11,
+    src: "https://ik.imagekit.io/papi/papi/IMG_5412.JPG?updatedAt=1762955960684",
+    category: "Graduation",
+  },
+
+  {
+    id : 11,
+    src: "https://ik.imagekit.io/papi/papi/IMG_5936.JPG?updatedAt=1762955960309",
+    category: "Graduation",
+  },
+
+  {
+    id : 11,
+    src: "https://ik.imagekit.io/papi/papi/IMG_5336.JPG?updatedAt=1762955958928",
+    category: "CORPORATE",
+  },
+
+  {
+    id : 11,
+    src: "https://ik.imagekit.io/papi/papi/IMG_5314.JPG?updatedAt=1762955959734",
+    category: "CORPORATE",
+  },
+
+  {
+    id : 11,
+    src: "https://ik.imagekit.io/papi/papi/IMG_5253.JPG?updatedAt=1762955960313",
+    category: "Graduation",
+  },
+
+  {
+    id : 11,
+    src: "https://ik.imagekit.io/papi/papi/IMG_5253.JPG?updatedAt=1762955960313",
+    category: "Graduation",
+  },
+
+  {
+    id : 11,
+    src: "https://ik.imagekit.io/papi/papi/IMG_9758.JPG?updatedAt=1762955959333",
+    category: "CORPORATE",
+  },
+
+  {
+    id : 11,
+    src: "https://ik.imagekit.io/papi/papi/IMG_5908.JPG?updatedAt=1762955959130",
+    category: "Graduation",
+  },
+  {
+    id : 11,
+    src: "https://ik.imagekit.io/papi/papi/IMG_5831.JPG?updatedAt=1762955957271",
+    category: "Hustle",
+  },
+
+  {
+    id : 11,
+    src: "https://ik.imagekit.io/papi/papi/IMG_5455.JPG?updatedAt=1762955956879",
+    category: "CORPORATE",
+  },
+
+  {
+    id : 11,
+    src: "https://ik.imagekit.io/papi/papi/IMG_5816.JPG?updatedAt=1762955957998",
+    category: "Graduation",
   }
 ];

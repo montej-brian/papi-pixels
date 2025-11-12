@@ -1,24 +1,38 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Camera, Instagram, Mail, Phone } from 'lucide-react';
+import { X, Instagram, Mail, Phone } from 'lucide-react';
 import { baseImages } from './data/images';
+import CategoryViewer from './components/CategoryViewer';
+import logo from './assets/logo.png';
 
 const PhotographerPortfolio = () => {
   const [selectedImage, setSelectedImage] = useState(null);
-  const [filter, setFilter] = useState('all');
+
+  // new state: open category viewer in free space
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [viewerOpen, setViewerOpen] = useState(false);
 
   const constraintsRef = useRef(null);
 
   // derive categories from images
   const categories = useMemo(() => {
     const set = Array.from(new Set(baseImages.map(i => i.category)));
-    return ['all', ...set];
+    return ['ALL', ...set];
   }, [baseImages]);
 
-  // Create filtered arrays
-  const filteredBaseImages = filter === 'all' 
-    ? baseImages 
-    : baseImages.filter(img => img.category === filter);
+  // filtered arrays removed — CategoryViewer receives images on open
+
+  const openCategoryViewer = (category) => {
+    setActiveCategory(category);
+    setViewerOpen(true);
+  };
+
+  const closeCategoryViewer = () => {
+    setViewerOpen(false);
+    setActiveCategory(null);
+    // remain on categories view (do not change theme/background). keep filter 'all'
+    // setFilter('all');
+  };
 
   const modalVariants = {
     hidden: { opacity: 0, scale: 0.8 },
@@ -61,7 +75,8 @@ const PhotographerPortfolio = () => {
             transition={{ delay: 0.5, duration: 0.8 }}
             className="mb-6"
           >
-            <Camera className="w-16 h-16 mx-auto mb-4 text-white" />
+            {/* logo image — keeps same spacing & alignment as previous icon */}
+            <img src={logo} alt="PAPI PIXELS" className="w-20 h-20 mx-auto mb-4" />
           </motion.div>
           <motion.h1 
             initial={{ y: 30, opacity: 0 }}
@@ -121,7 +136,7 @@ const PhotographerPortfolio = () => {
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
                 className="relative cursor-pointer rounded-lg overflow-hidden bg-gray-900 border border-gray-800"
-                onClick={() => setFilter(category)}
+                onClick={() => openCategoryViewer(category)}
               >
                 <div className="h-48 bg-black/40 overflow-hidden">
                   <img
@@ -144,7 +159,7 @@ const PhotographerPortfolio = () => {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
               className="relative cursor-pointer rounded-lg overflow-hidden bg-gray-900 border border-dashed border-gray-700 flex items-center justify-center p-6"
-              onClick={() => setFilter('all')}
+              onClick={() => openCategoryViewer('ALL')}
             >
               <div className="text-center">
                 <h3 className="text-2xl font-light tracking-wider">View All</h3>
@@ -153,64 +168,7 @@ const PhotographerPortfolio = () => {
             </motion.div>
           </motion.div>
 
-          {/* When a category is selected show the gallery (no autoscroll) */}
-          {filter !== 'all' && (
-            <>
-              <div className="flex justify-center mb-8">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setFilter('all')}
-                  className="px-6 py-2 border border-gray-600 rounded-full hover:border-white transition-colors text-sm"
-                >
-                  BACK TO CATEGORIES
-                </motion.button>
-              </div>
-
-              {/* Gallery: show all photos for the selected category in a grid.
-                  Each photo is independently draggable (no autoplay / carousel). */}
-              <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4">
-                {filteredBaseImages.map((image, index) => (
-                  <motion.div
-                    key={image.id + '-' + index}
-                    className="relative cursor-grab rounded-lg overflow-hidden bg-gray-900 border border-gray-800"
-                    drag
-                    dragElastic={0.12}
-                    dragMomentum={false}
-                    whileTap={{ cursor: 'grabbing', scale: 0.995 }}
-                  >
-                    <div className="h-64 overflow-hidden bg-black/40">
-                      <img
-                        src={image.src}
-                        alt={image.title}
-                        className="w-full h-full object-cover transform transition-transform duration-500"
-                        loading="lazy"
-                        onClick={() => setSelectedImage(image)}
-                      />
-                    </div>
-
-                    <div className="p-4">
-                      <h3 className="text-lg font-light tracking-wider">{image.title}</h3>
-                      <p className="text-gray-400 text-sm mt-2">{image.description}</p>
-                      <div className="mt-3">
-                        <span className="text-xs uppercase bg-black/60 px-2 py-1 rounded text-white">{image.category}</span>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.6 }}
-                viewport={{ once: true }}
-                className="text-center mt-8 text-gray-500 text-sm tracking-wider"
-              >
-                Drag each photo freely • Click to view full size
-              </motion.div>
-            </>
-          )}
+          {/* Inline gallery removed — photos are only opened via the CategoryViewer (free space / tab) */}
         </motion.div>
       </section>
 
@@ -318,6 +276,18 @@ const PhotographerPortfolio = () => {
               </motion.div>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Category Viewer modal / free space */}
+      <AnimatePresence>
+        {viewerOpen && activeCategory && (
+          <CategoryViewer
+            key={activeCategory}
+            category={activeCategory}
+            images={activeCategory === 'ALL' ? baseImages : baseImages.filter(img => img.category === activeCategory)}
+            onClose={closeCategoryViewer}
+          />
         )}
       </AnimatePresence>
     </div>

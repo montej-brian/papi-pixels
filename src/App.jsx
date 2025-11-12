@@ -1,138 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useAnimation, useDragControls } from 'framer-motion';
-import { X, Camera, Instagram, Mail, Phone, Pause, Play } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Camera, Instagram, Mail, Phone } from 'lucide-react';
+import { baseImages } from './data/images';
 
 const PhotographerPortfolio = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [filter, setFilter] = useState('all');
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [isDragging, setIsDragging] = useState(false);
-  
+
   const constraintsRef = useRef(null);
-  const controls = useAnimation();
-  const dragControls = useDragControls();
 
-  // Sample portfolio images - duplicated for infinite scroll effect
-  const baseImages = [
-    {
-      id: 1,
-      src: "https://ik.imagekit.io/papi/21.jpg?updatedAt=1757931251836",
-      category: "PAPI-PIXELS",
-      title: "Graduation",
-      description: "Captured during the magical golden moment"
-    },
-    {
-      id: 2,
-      src: "https://ik.imagekit.io/papi/23.jpg?updatedAt=1757931247474",
-      category: "PAPI-PIXELS",
-      title: "Fun",
-      description: "A moment of pure joy and love"
-    },
-    {
-      id: 3,
-      src: "https://ik.imagekit.io/papi/20.jpg?updatedAt=1757931234913",
-      category: "PAPI-PIXELS",
-      title: "Meeting",
-      description: "Innovation meeting at Zetech university"
-    },
-    {
-      id: 4,
-      src: "https://ik.imagekit.io/papi/7.jpg?updatedAt=1757931209186",
-      category: "PAPI-PIXELS",
-      title: "Beauty",
-      description: "Street photography"
-    },
-    {
-      id: 5,
-      src: "https://ik.imagekit.io/papi/10.jpg?updatedAt=1757931226203",
-      category: "PAPI-PIXELS",
-      title: "Official shoots",
-      description: "For professional use only"
-    },
-    {
-      id: 6,
-      src: "https://ik.imagekit.io/papi/13.jpg?updatedAt=1757931224009",
-      category: "PAPI-PIXELS",
-      title: "Vacation",
-      description: "Cool weather along the coast"
-    },
-    {
-      id: 7,
-      src: "https://ik.imagekit.io/papi/25.jpg?updatedAt=1757931219396",
-      category: "PAPI-PIXELS",
-      title: "Family ",
-      description: "Mother and son bonding"
-    },
-    {
-      id: 8,
-      src: "https://ik.imagekit.io/papi/2.jpg?updatedAt=1757931209915",
-      category: "PAPI-PIXELS",
-      title: "Self branding",
-      description: "Showcasing potrait business"
-    },
-    {
-      id: 9,
-      src: "https://ik.imagekit.io/papi/4.jpg?updatedAt=1757931205532",
-      category: "PAPI-PIXELS",
-      title: "Natural Beauty",
-      description: "Beauty in black melanin"
-    }
-  ];
+  // derive categories from images
+  const categories = useMemo(() => {
+    const set = Array.from(new Set(baseImages.map(i => i.category)));
+    return ['all', ...set];
+  }, [baseImages]);
 
-  const categories = ['all'];
-
-  // Create infinite scroll array by tripling the images
+  // Create filtered arrays
   const filteredBaseImages = filter === 'all' 
     ? baseImages 
     : baseImages.filter(img => img.category === filter);
-  
-  const infiniteImages = [...filteredBaseImages, ...filteredBaseImages, ...filteredBaseImages];
-
-  // Auto-scroll effect
-  useEffect(() => {
-    if (isAutoPlaying && !isDragging) {
-      const imageWidth = 400; // Width of each image card
-      const totalWidth = filteredBaseImages.length * imageWidth;
-      
-      const animate = async () => {
-        await controls.start({
-          x: -totalWidth,
-          transition: {
-            duration: filteredBaseImages.length * 2.5, // 3 seconds per image
-            ease: "linear",
-            repeat: Infinity,
-            repeatType: "loop"
-          }
-        });
-      };
-      
-      animate();
-    } else {
-      controls.stop();
-    }
-  }, [isAutoPlaying, isDragging, filteredBaseImages.length, controls]);
-
-  // Reset position when filter changes
-  useEffect(() => {
-    controls.set({ x: 0 });
-  }, [filter, controls]);
-
-  const handleDragStart = () => {
-    setIsDragging(true);
-    setIsAutoPlaying(false);
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-    // Resume auto-play after 3 seconds of no interaction
-    setTimeout(() => {
-      setIsAutoPlaying(true);
-    }, 3000);
-  };
-
-  const toggleAutoPlay = () => {
-    setIsAutoPlaying(!isAutoPlaying);
-  };
 
   const modalVariants = {
     hidden: { opacity: 0, scale: 0.8 },
@@ -147,6 +33,16 @@ const PhotographerPortfolio = () => {
       transition: { duration: 0.3 }
     }
   };
+
+  // helper: get representative image per category
+  const categoryMeta = useMemo(() => {
+    const map = {};
+    baseImages.forEach(img => {
+      if (!map[img.category]) map[img.category] = { count: 0, thumb: img.src };
+      map[img.category].count += 1;
+    });
+    return map;
+  }, [baseImages]);
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
@@ -211,147 +107,110 @@ const PhotographerPortfolio = () => {
         >
           <h2 className="text-5xl font-thin text-center mb-16 tracking-wider px-4">PORTFOLIO</h2>
           
-          {/* Filter Buttons */}
+          {/* Category Pack */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="flex justify-center mb-8 space-x-8 px-4"
+            className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 mb-10"
           >
-            {categories.map((category) => (
-              <motion.button
+            {categories.filter(c => c !== 'all').map(category => (
+              <motion.div
                 key={category}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                className="relative cursor-pointer rounded-lg overflow-hidden bg-gray-900 border border-gray-800"
                 onClick={() => setFilter(category)}
-                className={`px-6 py-2 tracking-widest uppercase transition-all duration-300 ${
-                  filter === category 
-                    ? 'text-white border-b-2 border-white' 
-                    : 'text-gray-500 hover:text-white'
-                }`}
               >
-                {category}
-              </motion.button>
+                <div className="h-48 bg-black/40 overflow-hidden">
+                  <img
+                    src={categoryMeta[category]?.thumb}
+                    alt={category}
+                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="text-xl font-light tracking-wider">{category}</h3>
+                  <p className="text-gray-400 text-sm mt-2">{categoryMeta[category]?.count || 0} photos</p>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity" />
+              </motion.div>
             ))}
-          </motion.div>
 
-            {/* Auto-play Control */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            viewport={{ once: true }}
-            className="flex justify-center mb-12"
-          >
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={toggleAutoPlay}
-              className="flex items-center space-x-2 px-4 py-2 border border-gray-600 rounded-full hover:border-white transition-colors"
-            >
-              {isAutoPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              <span className="text-sm tracking-wider">
-                {isAutoPlaying ? 'PAUSE' : 'PLAY'}
-              </span>
-            </motion.button>
-          </motion.div>
-
-          {/* Horizontal Scrolling Gallery */}
-          <div className="relative overflow-hidden" ref={constraintsRef}>
+            {/* "All" card to reset */}
             <motion.div
-              className="flex space-x-6 cursor-grab active:cursor-grabbing"
-              animate={controls}
-              drag="x"
-              dragControls={dragControls}
-              dragConstraints={{ left: -filteredBaseImages.length * 400, right: 0 }}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              dragElastic={0.1}
-              style={{ width: `${infiniteImages.length * 400}px` }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              className="relative cursor-pointer rounded-lg overflow-hidden bg-gray-900 border border-dashed border-gray-700 flex items-center justify-center p-6"
+              onClick={() => setFilter('all')}
             >
-              {infiniteImages.map((image, index) => (
-                <motion.div
-                  key={`${image.id}-${index}`}
-                  className="group cursor-pointer flex-shrink-0"
-                  style={{ width: '380px' }}
-                  whileHover={{ y: -5 }}
-                  transition={{ duration: 0.3 }}
-                  onClick={() => setSelectedImage(image)}
-                >
-                  {/* Image Container */}
-                  <motion.div
-                    className="relative overflow-hidden bg-gray-900 mb-4"
-                    style={{ height: '400px' }}
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <motion.img
-                      src={image.src}
-                      alt={image.title}
-                      className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    
-                    {/* Hover Overlay */}
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      whileHover={{ opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="absolute inset-0 bg-black/30 flex items-center justify-center"
-                    >
-                      <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        whileHover={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                        className="text-white text-sm uppercase tracking-widest bg-black/50 px-4 py-2 rounded"
-                      >
-                        View Full Size
-                      </motion.div>
-                    </motion.div>
-                    
-                    {/* Category Badge */}
-                    <div className="absolute top-4 left-4 bg-black/70 text-white text-xs uppercase tracking-wider px-3 py-1 rounded-full backdrop-blur-sm">
-                      {image.category}
-                    </div>
-                    
-                    {/* Hover Border Effect */}
-                    <motion.div
-                      className="absolute inset-0 border-2 border-white opacity-0"
-                      whileHover={{ opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                    />
-                  </motion.div>
-                  
-                  {/* Title and Description - Always Visible Below Image */}
-                  <motion.div 
-                    className="px-2"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                  >
-                    <h3 className="text-xl font-light mb-3 text-white group-hover:text-gray-300 transition-colors duration-300">
-                      {image.title}
-                    </h3>
-                    <p className="text-gray-400 text-sm leading-relaxed group-hover:text-gray-300 transition-colors duration-300">
-                      {image.description}
-                    </p>
-                  </motion.div>
-                </motion.div>
-              ))}
+              <div className="text-center">
+                <h3 className="text-2xl font-light tracking-wider">View All</h3>
+                <p className="text-gray-400 text-sm mt-2">{baseImages.length} photos</p>
+              </div>
             </motion.div>
-          </div>
-
-          {/* Scroll Indicator */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mt-8 text-gray-500 text-sm tracking-wider"
-          >
-            ← DRAG TO EXPLORE MORE →
           </motion.div>
+
+          {/* When a category is selected show the gallery (no autoscroll) */}
+          {filter !== 'all' && (
+            <>
+              <div className="flex justify-center mb-8">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setFilter('all')}
+                  className="px-6 py-2 border border-gray-600 rounded-full hover:border-white transition-colors text-sm"
+                >
+                  BACK TO CATEGORIES
+                </motion.button>
+              </div>
+
+              {/* Gallery: show all photos for the selected category in a grid.
+                  Each photo is independently draggable (no autoplay / carousel). */}
+              <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4">
+                {filteredBaseImages.map((image, index) => (
+                  <motion.div
+                    key={image.id + '-' + index}
+                    className="relative cursor-grab rounded-lg overflow-hidden bg-gray-900 border border-gray-800"
+                    drag
+                    dragElastic={0.12}
+                    dragMomentum={false}
+                    whileTap={{ cursor: 'grabbing', scale: 0.995 }}
+                  >
+                    <div className="h-64 overflow-hidden bg-black/40">
+                      <img
+                        src={image.src}
+                        alt={image.title}
+                        className="w-full h-full object-cover transform transition-transform duration-500"
+                        loading="lazy"
+                        onClick={() => setSelectedImage(image)}
+                      />
+                    </div>
+
+                    <div className="p-4">
+                      <h3 className="text-lg font-light tracking-wider">{image.title}</h3>
+                      <p className="text-gray-400 text-sm mt-2">{image.description}</p>
+                      <div className="mt-3">
+                        <span className="text-xs uppercase bg-black/60 px-2 py-1 rounded text-white">{image.category}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.6 }}
+                viewport={{ once: true }}
+                className="text-center mt-8 text-gray-500 text-sm tracking-wider"
+              >
+                Drag each photo freely • Click to view full size
+              </motion.div>
+            </>
+          )}
         </motion.div>
       </section>
 

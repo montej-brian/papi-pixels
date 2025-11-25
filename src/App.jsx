@@ -4,6 +4,7 @@ import { X, Instagram, Mail, Phone } from 'lucide-react';
 import { baseImages } from './data/images';
 import CategoryViewer from './components/CategoryViewer';
 import logo from './assets/logo.png';
+import { Analytics } from "@vercel/analytics/next";
 
 const PhotographerPortfolio = () => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -31,6 +32,8 @@ const PhotographerPortfolio = () => {
     // remain on categories view (do not change theme/background). keep filter 'all'
     // setFilter('all');
   };
+  
+    <Analytics/>
 
   const modalVariants = {
     hidden: { opacity: 0, scale: 0.8 },
